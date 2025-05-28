@@ -1,19 +1,25 @@
-import { validateAdmin } from '@/lib/admin'
-import { validateTeacher } from '@/lib/teacher'
-import { auth } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
+import { validateAdmin } from "@/lib/admin";
+import { validateTeacher } from "@/lib/teacher";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-const TeacherLayout = async ({ children }: { children: React.ReactNode }) => {
-  const { userId } = auth()
+export default async function TeacherLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { userId, redirectToSignIn } = await auth();
 
-  const isTeacher = await validateTeacher(userId as string)
-  const isAdmin = await validateAdmin(userId as string)
-
-  if (!isTeacher || !isAdmin) {
-    return redirect('/')
+  if (!userId) {
+    return redirectToSignIn();
   }
 
-  return <>{children}</>
-}
+  const isTeacher = await validateTeacher(userId);
+  const isAdmin = await validateAdmin(userId);
 
-export default TeacherLayout
+  if (isTeacher || isAdmin) {
+    return <>{children}</>;
+  } else {
+    return redirect("/");
+  }
+}

@@ -10,15 +10,15 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <MaxWidthWrapper className="my-10 flex flex-col items-center justify-center text-center sm:mt-20">
-        <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-500 bg-white px-6 py-2 shadow-md backdrop-blur transition-all hover:border-gray-500 hover:bg-white/50">
+      <MaxWidthWrapper className="my-10 flex flex-col items-center justify-center text-center sm:mt-12">
+        {/* <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-500 bg-white px-6 py-2 shadow-md backdrop-blur transition-all hover:border-gray-500 hover:bg-white/50">
           <p className="text-sm font-semibold text-gray-700">
             AcademEase is now public!
           </p>
-        </div>
-        <h1 className="font-heading max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
-          Learn and Teach with <span className="text-sky-500">Ease </span>
-          on AcademEase
+        </div> */}
+        <h1 className="font-heading max-w-4xl text-5xl font-bold tracking-tighter md:text-6xl lg:text-8xl">
+          Afghan LMS if the future of{" "}
+          <span className="text-sky-600">Learning</span> and Teaching
         </h1>
         <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
           Whether you&apos;re a student looking to master new skills or an

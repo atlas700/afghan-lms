@@ -1,19 +1,24 @@
-import { Category, Course } from '@prisma/client'
+import { getProgress } from "@/actions/get-progress";
+import { db } from "@/db";
+import {
+  ChapterTable,
+  CourseTable,
+  PurchaseTable,
+  type CategoryTable,
+} from "@/db/schema";
+import { and, desc, eq, ilike } from "drizzle-orm";
 
-import { getProgress } from '@/actions/get-progress'
-import { db } from '@/lib/db'
-
-type CourseWithProgressWithCategory = Course & {
-  category: Category | null
-  chapters: { id: string }[]
-  progress: number | null
-}
+type CourseWithProgressWithCategory = typeof CourseTable.$inferSelect & {
+  category: typeof CategoryTable.$inferSelect | null;
+  chapters: { id: string }[];
+  progress: number | null;
+};
 
 type GetCourses = {
-  userId: string
-  title?: string
-  categoryId?: string
-}
+  userId: string;
+  title?: string;
+  categoryId?: string;
+};
 
 export const getCourses = async ({
   userId,
@@ -21,34 +26,24 @@ export const getCourses = async ({
   categoryId,
 }: GetCourses): Promise<CourseWithProgressWithCategory[]> => {
   try {
-    const courses = await db.course.findMany({
-      where: {
-        isPublished: true,
-        title: {
-          contains: title,
-        },
-        categoryId,
-      },
-      include: {
+    const courses = await db.query.CourseTable.findMany({
+      where: and(
+        eq(CourseTable.isPublished, true),
+        ilike(CourseTable.title, title!),
+        eq(CourseTable.categoryId, categoryId!),
+      ),
+      with: {
         category: true,
         chapters: {
-          where: {
-            isPublished: true,
-          },
-          select: {
-            id: true,
-          },
+          where: eq(ChapterTable.isPublished, true),
+          columns: { id: true },
         },
         purchases: {
-          where: {
-            userId,
-          },
+          where: eq(PurchaseTable.userId, userId),
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
+      orderBy: desc(CourseTable.createdAt),
+    });
 
     const coursesWithProgress: CourseWithProgressWithCategory[] =
       await Promise.all(
@@ -57,21 +52,21 @@ export const getCourses = async ({
             return {
               ...course,
               progress: null,
-            }
+            };
           }
 
-          const progressPercentage = await getProgress(userId, course.id)
+          const progressPercentage = await getProgress(userId, course.id);
 
           return {
             ...course,
             progress: progressPercentage,
-          }
+          };
         }),
-      )
+      );
 
-    return coursesWithProgress
+    return coursesWithProgress;
   } catch (error) {
-    console.log('[GET_COURSES]', error)
-    return []
+    console.log("[GET_COURSES]", error);
+    return [];
   }
-}
+};

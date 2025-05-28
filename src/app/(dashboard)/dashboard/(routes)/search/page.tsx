@@ -1,37 +1,39 @@
-import { auth } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-import { getCourses } from '@/actions/get-courses'
-import { CoursesList } from '@/components/courses-list'
-import { SearchInput } from '@/components/search-input'
-import { db } from '@/lib/db'
+import { getCourses } from "@/actions/get-courses";
+import { CoursesList } from "@/components/courses-list";
+import { SearchInput } from "@/components/search-input";
 
-import { Categories } from './_components/categories'
+import { Categories } from "./_components/categories";
+import { db } from "@/db";
+import { asc } from "drizzle-orm";
+import { CategoryTable } from "@/db/schema";
 
 interface SearchPageProps {
-  searchParams: {
-    title: string
-    categoryId: string
-  }
+  searchParams: Promise<{
+    title: string;
+    categoryId: string;
+  }>;
 }
 
 const SearchPage = async ({ searchParams }: SearchPageProps) => {
-  const { userId } = auth()
+  const { userId } = await auth();
+  const { categoryId, title } = await searchParams;
 
   if (!userId) {
-    return redirect('/')
+    return redirect("/");
   }
 
-  const categories = await db.category.findMany({
-    orderBy: {
-      name: 'asc',
-    },
-  })
+  const categories = await db.query.CategoryTable.findMany({
+    orderBy: asc(CategoryTable.name),
+  });
 
   const courses = await getCourses({
     userId,
-    ...searchParams,
-  })
+    categoryId,
+    title,
+  });
 
   return (
     <>
@@ -43,7 +45,7 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
         <CoursesList items={courses} />
       </div>
     </>
-  )
-}
+  );
+};
 
-export default SearchPage
+export default SearchPage;

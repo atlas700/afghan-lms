@@ -1,7 +1,6 @@
-'use client'
+"use client";
 
-import { Category } from '@prisma/client'
-import { IconType } from 'react-icons'
+import type { IconType } from "react-icons";
 import {
   FcEngineering,
   FcFilmReel,
@@ -10,23 +9,24 @@ import {
   FcOldTimeCamera,
   FcSalesPerformance,
   FcSportsMode,
-} from 'react-icons/fc'
+} from "react-icons/fc";
 
-import { CategoryItem } from './category-item'
+import { CategoryItem } from "./category-item";
+import type { CategoryTable } from "@/db/schema";
 
 interface CategoriesProps {
-  items: Category[]
+  items: (typeof CategoryTable.$inferSelect)[];
 }
 
-const iconMap: Record<Category['name'], IconType> = {
+const iconMap: Record<(typeof CategoryTable.$inferSelect)["name"], IconType> = {
   Music: FcMusic,
   Photography: FcOldTimeCamera,
   Fitness: FcSportsMode,
   Accounting: FcSalesPerformance,
-  'Computer Science': FcMultipleDevices,
+  "Computer Science": FcMultipleDevices,
   Filming: FcFilmReel,
   Engineering: FcEngineering,
-}
+};
 
 export const Categories = ({ items }: CategoriesProps) => {
   return (
@@ -40,5 +40,5 @@ export const Categories = ({ items }: CategoriesProps) => {
         />
       ))}
     </div>
-  )
-}
+  );
+};

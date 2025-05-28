@@ -14,11 +14,11 @@ const Navbar = async () => {
   const isAdmin = await validateAdmin(userId!);
 
   return (
-    <nav className="sticky inset-x-0 top-0 z-30 h-14 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
+    <nav className="bg-background/70 sticky inset-x-0 top-0 z-30 h-14 w-full border-b border-gray-100 shadow backdrop-blur-lg transition-all">
       <MaxWidthWrapper>
-        <div className="flex h-14 items-center justify-between border-b border-zinc-200">
+        <div className="flex h-14 items-center justify-between border-b border-zinc-100">
           <Link href="/" className="z-40 flex font-semibold">
-            <span>AcademEase</span>
+            <span>AFGHAN📘LMS</span>
           </Link>
 
           <MobileNav userId={userId} isAdmin={isAdmin} />

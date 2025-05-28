@@ -1,5 +1,5 @@
-import { Navbar } from './dashboard/_components/navbar'
-import { Sidebar } from './dashboard/_components/sidebar'
+import { Navbar } from "./dashboard/_components/navbar";
+import { Sidebar } from "./dashboard/_components/sidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -12,7 +12,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
       <main className="h-full pt-[80px] md:pl-56">{children}</main>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardLayout
+export default DashboardLayout;

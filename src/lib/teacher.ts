@@ -7,7 +7,7 @@ export async function validateTeacher(userId: string) {
     where: and(eq(UserTable.clerkId, userId), eq(UserTable.isTeacher, true)),
   });
 
-  if (teacher) {
+  if (teacher?.isTeacher) {
     return true;
   }
 

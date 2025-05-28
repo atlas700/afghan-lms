@@ -1,32 +1,29 @@
-import { auth } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
+import { auth } from "@clerk/nextjs/server";
 
-import { db } from '@/lib/db'
+import { db } from "@/db";
 
-import { columns } from './_components/columns'
-import { DataTable } from './_components/data-table'
+import { CourseTable } from "@/db/schema";
+import { desc, eq } from "drizzle-orm";
+import { columns } from "./_components/columns";
+import { DataTable } from "./_components/data-table";
 
 const CoursesPage = async () => {
-  const { userId } = auth()
+  const { userId, redirectToSignIn } = await auth();
 
   if (!userId) {
-    return redirect('/')
+    return redirectToSignIn();
   }
 
-  const courses = await db.course.findMany({
-    where: {
-      userId,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  })
+  const courses = await db.query.CourseTable.findMany({
+    where: eq(CourseTable.userId, userId),
+    orderBy: desc(CourseTable.createdAt),
+  });
 
   return (
     <div className="p-6">
       <DataTable columns={columns} data={courses} />
     </div>
-  )
-}
+  );
+};
 
-export default CoursesPage
+export default CoursesPage;

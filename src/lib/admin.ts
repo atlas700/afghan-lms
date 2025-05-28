@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { UserTable } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
-export async function validateAdmin(userId?: string) {
+export async function validateAdmin(userId: string) {
   if (!userId) {
     console.warn("validateAdmin called with undefined userId");
     return false;
@@ -12,7 +12,7 @@ export async function validateAdmin(userId?: string) {
     where: and(eq(UserTable.clerkId, userId), eq(UserTable.isAdmin, true)),
   });
 
-  if (admin) {
+  if (admin?.isAdmin) {
     return true;
   }
 

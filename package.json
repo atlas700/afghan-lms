@@ -21,11 +21,16 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.20.1",
+    "@hookform/resolvers": "^5.0.1",
     "@neondatabase/serverless": "^1.0.0",
     "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-progress": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@t3-oss/env-nextjs": "^0.12.0",
+    "@tanstack/react-table": "^8.21.3",
+    "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.5.0",
@@ -35,8 +40,11 @@
     "query-string": "^9.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.56.4",
+    "react-hot-toast": "^2.5.2",
+    "react-icons": "^5.5.0",
     "tailwind-merge": "^3.3.0",
-    "zod": "^3.24.2"
+    "zod": "^3.25.30"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
