@@ -36,16 +36,16 @@ export const CourseTable = pgTable(
   {
     id,
     userId: text("user_id").notNull(),
+    categoryId: uuid("category_id").references(() => CategoryTable.id),
     title: text("title").notNull(),
     description: text("description"),
     imageUrl: text("image_url"),
     price: decimal("price"),
     isPublished: boolean("is_published").default(false),
-    categoryId: integer("category_id"),
     createdAt,
     updatedAt,
   },
-  (table) => [index("course_category_id_idx").on(table.categoryId)]
+  (table) => [index("course_category_id_idx").on(table.categoryId)],
 );
 
 export const CourseRelations = relations(CourseTable, ({ many, one }) => ({
@@ -73,11 +73,15 @@ export const AttachmentTable = pgTable(
     id,
     name: text("name").notNull(),
     url: text("url").notNull(),
-    courseId: integer("course_id").notNull(),
+    courseId: uuid("course_id")
+      .notNull()
+      .references(() => CourseTable.id, {
+        onDelete: "cascade",
+      }),
     createdAt,
     updatedAt,
   },
-  (table) => [index("attachment_course_id_idx").on(table.courseId)]
+  (table) => [index("attachment_course_id_idx").on(table.courseId)],
 );
 
 export const AttachmentRelations = relations(AttachmentTable, ({ one }) => ({
@@ -97,11 +101,15 @@ export const ChapterTable = pgTable(
     position: integer("position").notNull(),
     isPublished: boolean("is_published").default(false),
     isFree: boolean("is_free").default(false),
-    courseId: integer("course_id").notNull(),
+    courseId: uuid("course_id")
+      .notNull()
+      .references(() => CourseTable.id, {
+        onDelete: "cascade",
+      }),
     createdAt,
     updatedAt,
   },
-  (table) => [index("chapter_course_id_idx").on(table.courseId)]
+  (table) => [index("chapter_course_id_idx").on(table.courseId)],
 );
 
 export const ChapterRelations = relations(ChapterTable, ({ one, many }) => ({
@@ -122,11 +130,15 @@ export const MuxDataTable = pgTable(
     id,
     assetId: text("asset_id").notNull(),
     playbackId: text("playback_id"),
-    chapterId: integer("chapter_id").notNull(),
+    chapterId: uuid("chapter_id")
+      .notNull()
+      .references(() => ChapterTable.id, {
+        onDelete: "cascade",
+      }),
     createdAt,
     updatedAt,
   },
-  (table) => [index("mux_chapter_id_idx").on(table.chapterId)]
+  (table) => [index("mux_chapter_id_idx").on(table.chapterId)],
 );
 
 export const MuxDataRelations = relations(MuxDataTable, ({ one }) => ({
@@ -141,12 +153,16 @@ export const UserProgressTable = pgTable(
   {
     id,
     userId: text("user_id").notNull(),
-    chapterId: text("chapter_id").notNull(),
+    chapterId: uuid("chapter_id")
+      .notNull()
+      .references(() => ChapterTable.id, {
+        onDelete: "cascade",
+      }),
     isCompleted: boolean("is_complete").default(false),
     createdAt,
     updatedAt,
   },
-  (table) => [index("user_progress_chapter_id_idx").on(table.chapterId)]
+  (table) => [index("user_progress_chapter_id_idx").on(table.chapterId)],
 );
 
 export const UserProgressRelations = relations(
@@ -156,7 +172,7 @@ export const UserProgressRelations = relations(
       fields: [UserProgressTable.chapterId],
       references: [ChapterTable.id],
     }),
-  })
+  }),
 );
 
 export const PurchaseTable = pgTable(
@@ -164,11 +180,15 @@ export const PurchaseTable = pgTable(
   {
     id,
     userId: text("user_id").notNull(),
-    courseId: integer("course_id").notNull(),
+    courseId: uuid("course_id")
+      .notNull()
+      .references(() => CourseTable.id, {
+        onDelete: "cascade",
+      }),
     createdAt,
     updatedAt,
   },
-  (table) => [index("purchase_course_id_idx").on(table.courseId)]
+  (table) => [index("purchase_course_id_idx").on(table.courseId)],
 );
 
 export const PurchaseRelations = relations(PurchaseTable, ({ one }) => ({

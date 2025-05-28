@@ -4,13 +4,13 @@ import { and, eq, inArray } from "drizzle-orm";
 
 export const getProgress = async (
   userId: string,
-  courseId: number
+  courseId: string,
 ): Promise<number> => {
   try {
     const publishedChapters = await db.query.ChapterTable.findMany({
       where: and(
         eq(ChapterTable.courseId, courseId),
-        eq(ChapterTable.isPublished, true)
+        eq(ChapterTable.isPublished, true),
       ),
       columns: {
         id: true,
@@ -23,7 +23,7 @@ export const getProgress = async (
       where: and(
         eq(UserProgressTable.userId, userId),
         eq(UserProgressTable.isCompleted, true),
-        inArray(UserProgressTable.chapterId, publishedChapterIds)
+        inArray(UserProgressTable.chapterId, publishedChapterIds),
       ),
     });
 

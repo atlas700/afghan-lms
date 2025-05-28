@@ -1,10 +1,10 @@
 import { getProgress } from "@/actions/get-progress";
 import { db } from "@/db";
 import {
-  CategoryTable,
   ChapterTable,
-  CourseTable,
   PurchaseTable,
+  type CategoryTable,
+  type CourseTable,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -20,7 +20,7 @@ type DashboardCourses = {
 };
 
 export const getDashboardCourses = async (
-  userId: string
+  userId: string,
 ): Promise<DashboardCourses> => {
   try {
     const purchasedCourses = await db.query.PurchaseTable.findMany({
@@ -40,19 +40,19 @@ export const getDashboardCourses = async (
     });
 
     const courses = purchasedCourses.map(
-      (purchase) => purchase.course
+      (purchase) => purchase.course,
     ) as CourseWithProgressWithCategory[];
 
-    for (let course of courses) {
+    for (const course of courses) {
       const progress = await getProgress(userId, course.id);
-      course["progress"] = progress;
+      course.progress = progress;
     }
 
     const completedCourses = courses.filter(
-      (course) => course.progress === 100
+      (course) => course.progress === 100,
     );
     const coursesInProgress = courses.filter(
-      (course) => (course.progress ?? 0) < 100
+      (course) => (course.progress ?? 0) < 100,
     );
 
     return {

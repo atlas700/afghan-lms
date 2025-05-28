@@ -2,7 +2,7 @@ CREATE TABLE "attachment_table" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"url" text NOT NULL,
-	"course_id" integer NOT NULL,
+	"course_id" uuid NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -18,20 +18,20 @@ CREATE TABLE "chapter_table" (
 	"position" integer NOT NULL,
 	"is_published" boolean DEFAULT false,
 	"is_free" boolean DEFAULT false,
-	"course_id" integer NOT NULL,
+	"course_id" uuid NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "course_table" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" text NOT NULL,
+	"category_id" uuid,
 	"title" text NOT NULL,
 	"description" text,
 	"image_url" text,
 	"price" numeric,
 	"is_published" boolean DEFAULT false,
-	"category_id" integer,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -40,22 +40,22 @@ CREATE TABLE "mux_data_table" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"asset_id" text NOT NULL,
 	"playback_id" text,
-	"chapter_id" integer NOT NULL,
+	"chapter_id" uuid NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "purchase_table" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" integer NOT NULL,
-	"course_id" integer NOT NULL,
+	"user_id" text NOT NULL,
+	"course_id" uuid NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "stripe_customer_table" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" text NOT NULL,
 	"stripe_customer_id" text NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
@@ -63,8 +63,8 @@ CREATE TABLE "stripe_customer_table" (
 --> statement-breakpoint
 CREATE TABLE "user_progress_table" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" integer NOT NULL,
-	"chapter_id" integer NOT NULL,
+	"user_id" text NOT NULL,
+	"chapter_id" uuid NOT NULL,
 	"is_complete" boolean DEFAULT false,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
@@ -84,6 +84,12 @@ CREATE TABLE "user_table" (
 	CONSTRAINT "user_table_clerk_user_id_unique" UNIQUE("clerk_user_id")
 );
 --> statement-breakpoint
+ALTER TABLE "attachment_table" ADD CONSTRAINT "attachment_table_course_id_course_table_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."course_table"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "chapter_table" ADD CONSTRAINT "chapter_table_course_id_course_table_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."course_table"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "course_table" ADD CONSTRAINT "course_table_category_id_category_table_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."category_table"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "mux_data_table" ADD CONSTRAINT "mux_data_table_chapter_id_chapter_table_id_fk" FOREIGN KEY ("chapter_id") REFERENCES "public"."chapter_table"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "purchase_table" ADD CONSTRAINT "purchase_table_course_id_course_table_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."course_table"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_progress_table" ADD CONSTRAINT "user_progress_table_chapter_id_chapter_table_id_fk" FOREIGN KEY ("chapter_id") REFERENCES "public"."chapter_table"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "attachment_course_id_idx" ON "attachment_table" USING btree ("course_id");--> statement-breakpoint
 CREATE INDEX "chapter_course_id_idx" ON "chapter_table" USING btree ("course_id");--> statement-breakpoint
 CREATE INDEX "course_category_id_idx" ON "course_table" USING btree ("category_id");--> statement-breakpoint
