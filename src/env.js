@@ -12,6 +12,8 @@ export const env = createEnv({
     DATABASE_URL: z.string().min(1, "Database URL is Required"),
     UPLOADTHING_SECRET: z.string().min(1, "Uploadthing Secret is Required"),
     UPLOADTHING_APP_ID: z.string().min(1, "Uploadthing App ID is Required"),
+    MUX_TOKEN_ID: z.string().min(1, "Mux Token ID is Required"),
+    MUX_TOKEN_SECRET: z.string().min(1, "Mux Secret is Required"),
   },
 
   /**
@@ -60,6 +62,8 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,
     UPLOADTHING_APP_ID: process.env.UPLOADTHING_APP_ID,
     UPLOADTHING_SECRET: process.env.UPLOADTHING_SECRET,
+    MUX_TOKEN_ID: process.env.MUX_TOKEN_ID,
+    MUX_TOKEN_SECRET: process.env.MUX_TOKEN_SECRET,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
