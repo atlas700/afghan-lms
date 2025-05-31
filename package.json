@@ -17,7 +17,8 @@
     "db:push": "npx drizzle-kit push",
     "db:generate": "npx drizzle-kit generate",
     "db:migrate": "npx drizzle-kit migrate",
-    "db:studio": "npx drizzle-kit studio"
+    "db:studio": "npx drizzle-kit studio",
+    "db:seed": "pnpm tsx src/db/seed.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.20.1",
@@ -51,6 +52,7 @@
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "tailwind-merge": "^3.3.0",
+    "tsx": "^4.19.4",
     "uploadthing": "^7.7.2",
     "zod": "^3.25.30",
     "zustand": "^5.0.5"

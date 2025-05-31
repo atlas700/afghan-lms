@@ -9,7 +9,6 @@ import { env } from "@/env";
 import { and, eq } from "drizzle-orm";
 import { CourseTable } from "@/db/schema";
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 const { video } = new Mux({
   tokenId: env.MUX_TOKEN_ID,
   tokenSecret: env.MUX_TOKEN_SECRET,

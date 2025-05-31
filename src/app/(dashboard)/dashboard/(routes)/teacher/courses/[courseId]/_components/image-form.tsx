@@ -1,45 +1,46 @@
-'use client'
+"use client";
 
-import { Course } from '@prisma/client'
-import axios from 'axios'
-import { ImageIcon, Pencil, PlusCircle } from 'lucide-react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import * as z from 'zod'
+import axios from "axios";
+import { ImageIcon, Pencil, PlusCircle } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import * as z from "zod";
 
-import { FileUpload } from '@/components/file-upload'
-import { Button } from '@/components/ui/button'
+import { FileUpload } from "@/components/file-upload";
+import { Button } from "@/components/ui/button";
+import type { CourseTable } from "@/db/schema";
 
 interface ImageFormProps {
-  initialData: Course
-  courseId: string
+  initialData: typeof CourseTable.$inferSelect;
+  courseId: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formSchema = z.object({
   imageUrl: z.string().min(1, {
-    message: 'Image is required',
+    message: "Image is required",
   }),
-})
+});
 
 export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
 
-  const toggleEdit = () => setIsEditing((current) => !current)
+  const toggleEdit = () => setIsEditing((current) => !current);
 
-  const router = useRouter()
+  const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/courses/${courseId}`, values)
-      toast.success('Course updated')
-      toggleEdit()
-      router.refresh()
+      await axios.patch(`/api/courses/${courseId}`, values);
+      toast.success("Course updated");
+      toggleEdit();
+      router.refresh();
     } catch {
-      toast.error('Something went wrong')
+      toast.error("Something went wrong");
     }
-  }
+  };
 
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
@@ -82,15 +83,15 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
             endpoint="courseImage"
             onChange={(url) => {
               if (url) {
-                onSubmit({ imageUrl: url })
+                void onSubmit({ imageUrl: url });
               }
             }}
           />
-          <div className="mt-4 text-xs text-muted-foreground">
+          <div className="text-muted-foreground mt-4 text-xs">
             16:9 aspect ratio recommended
           </div>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
