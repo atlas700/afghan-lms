@@ -1,42 +1,45 @@
-import { auth } from '@clerk/nextjs'
-import { NextResponse } from 'next/server'
-
-import { db } from '@/lib/db'
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { db } from "@/db";
+import { ChapterTable, CourseTable } from "@/db/schema";
+import { auth } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { courseId: string } },
+  { params }: { params: Promise<{ courseId: string }> },
 ) {
   try {
-    const { userId } = auth()
+    const { courseId } = await params;
+    const { userId } = await auth();
 
     if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const { list } = await req.json()
+    const { list } = await req.json();
 
-    const ownCourse = await db.course.findUnique({
-      where: {
-        id: params.courseId,
-        userId: userId,
-      },
-    })
+    const ownCourse = await db.query.CourseTable.findFirst({
+      where: and(eq(CourseTable.id, courseId), eq(CourseTable.userId, userId)),
+    });
 
     if (!ownCourse) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    for (let item of list) {
-      await db.chapter.update({
-        where: { id: item.id },
-        data: { position: item.position },
-      })
+    for (const item of list) {
+      await db
+        .update(ChapterTable)
+        .set({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          position: item.position,
+        })
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+        .where(eq(ChapterTable.id, item.id));
     }
 
-    return new NextResponse('Success', { status: 200 })
+    return new Response("Success", { status: 200 });
   } catch (error) {
-    console.log('[REORDER]', error)
-    return new NextResponse('Internal Error', { status: 500 })
+    console.log("[REORDER]", error);
+    return new Response("Internal Error", { status: 500 });
   }
 }

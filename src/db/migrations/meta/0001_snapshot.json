@@ -1,6 +1,6 @@
 {
-  "id": "8cec8668-ccc8-4fb3-9da8-b100e15353a5",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "7727bdb8-ec9e-40fe-bedb-1da1d56bca05",
+  "prevId": "8cec8668-ccc8-4fb3-9da8-b100e15353a5",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -123,8 +123,20 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "name": {
-          "name": "name",
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "video_url": {
+          "name": "video_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false

@@ -1,51 +1,53 @@
-import { auth } from '@clerk/nextjs'
-import { ArrowLeft, Eye, LayoutDashboard, Video } from 'lucide-react'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import { auth } from "@clerk/nextjs/server";
+import { ArrowLeft, Eye, LayoutDashboard, Video } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { Banner } from '@/components/banner'
-import { IconBadge } from '@/components/icon-badge'
-import { db } from '@/lib/db'
+import { Banner } from "@/components/banner";
+import { IconBadge } from "@/components/icon-badge";
+import { db } from "@/db";
 
-import { ChapterAccessForm } from './_components/chapter-access-form'
-import { ChapterActions } from './_components/chapter-actions'
-import { ChapterDescriptionForm } from './_components/chapter-description-form'
-import { ChapterTitleForm } from './_components/chapter-title-form'
-import { ChapterVideoForm } from './_components/chapter-video-form'
+import { ChapterAccessForm } from "./_components/chapter-access-form";
+import { ChapterActions } from "./_components/chapter-actions";
+import { ChapterDescriptionForm } from "./_components/chapter-description-form";
+import { ChapterTitleForm } from "./_components/chapter-title-form";
+import { ChapterVideoForm } from "./_components/chapter-video-form";
+import { and, eq } from "drizzle-orm";
+import { ChapterTable } from "@/db/schema";
 
 const ChapterIdPage = async ({
   params,
 }: {
-  params: { courseId: string; chapterId: string }
+  params: Promise<{ courseId: string; chapterId: string }>;
 }) => {
-  const { userId } = auth()
-
+  const { userId } = await auth();
+  const { courseId, chapterId } = await params;
   if (!userId) {
-    return redirect('/')
+    return redirect("/");
   }
 
-  const chapter = await db.chapter.findUnique({
-    where: {
-      id: params.chapterId,
-      courseId: params.courseId,
-    },
-    include: {
+  const chapter = await db.query.ChapterTable.findFirst({
+    where: and(
+      eq(ChapterTable.id, chapterId),
+      eq(ChapterTable.courseId, courseId),
+    ),
+    with: {
       muxData: true,
     },
-  })
+  });
 
   if (!chapter) {
-    return redirect('/')
+    return redirect("/");
   }
 
-  const requiredFields = [chapter.title, chapter.description, chapter.videoUrl]
+  const requiredFields = [chapter.title, chapter.description, chapter.videoUrl];
 
-  const totalFields = requiredFields.length
-  const completedFields = requiredFields.filter(Boolean).length
+  const totalFields = requiredFields.length;
+  const completedFields = requiredFields.filter(Boolean).length;
 
-  const completionText = `(${completedFields}/${totalFields})`
+  const completionText = `(${completedFields}/${totalFields})`;
 
-  const isComplete = requiredFields.every(Boolean)
+  const isComplete = requiredFields.every(Boolean);
 
   return (
     <>
@@ -59,7 +61,7 @@ const ChapterIdPage = async ({
         <div className="flex items-center justify-between">
           <div className="w-full">
             <Link
-              href={`/dashboard/teacher/courses/${params.courseId}`}
+              href={`/dashboard/teacher/courses/${courseId}`}
               className="mb-6 flex items-center text-sm transition hover:opacity-75"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -74,9 +76,9 @@ const ChapterIdPage = async ({
               </div>
               <ChapterActions
                 disabled={!isComplete}
-                courseId={params.courseId}
-                chapterId={params.chapterId}
-                isPublished={chapter.isPublished}
+                courseId={courseId}
+                chapterId={chapterId}
+                isPublished={chapter.isPublished!}
               />
             </div>
           </div>
@@ -90,13 +92,13 @@ const ChapterIdPage = async ({
               </div>
               <ChapterTitleForm
                 initialData={chapter}
-                courseId={params.courseId}
-                chapterId={params.chapterId}
+                courseId={courseId}
+                chapterId={chapterId}
               />
               <ChapterDescriptionForm
                 initialData={chapter}
-                courseId={params.courseId}
-                chapterId={params.chapterId}
+                courseId={courseId}
+                chapterId={chapterId}
               />
             </div>
             <div>
@@ -106,8 +108,8 @@ const ChapterIdPage = async ({
               </div>
               <ChapterAccessForm
                 initialData={chapter}
-                courseId={params.courseId}
-                chapterId={params.chapterId}
+                courseId={courseId}
+                chapterId={chapterId}
               />
             </div>
           </div>
@@ -118,14 +120,14 @@ const ChapterIdPage = async ({
             </div>
             <ChapterVideoForm
               initialData={chapter}
-              chapterId={params.chapterId}
-              courseId={params.courseId}
+              chapterId={chapterId}
+              courseId={courseId}
             />
           </div>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default ChapterIdPage
+export default ChapterIdPage;

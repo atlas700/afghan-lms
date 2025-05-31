@@ -1,59 +1,62 @@
-'use client'
+"use client";
 
-import { Attachment, Course } from '@prisma/client'
-import axios from 'axios'
-import { File, Loader2, PlusCircle, X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import * as z from 'zod'
+import axios from "axios";
+import { File, Loader2, PlusCircle, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import * as z from "zod";
 
-import { FileUpload } from '@/components/file-upload'
-import { Button } from '@/components/ui/button'
+import { FileUpload } from "@/components/file-upload";
+import { Button } from "@/components/ui/button";
+import type { AttachmentTable, CourseTable } from "@/db/schema";
 
 interface AttachmentFormProps {
-  initialData: Course & { attachments: Attachment[] }
-  courseId: string
+  initialData: typeof CourseTable.$inferSelect & {
+    attachments: (typeof AttachmentTable.$inferSelect)[];
+  };
+  courseId: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formSchema = z.object({
   url: z.string().min(1),
-})
+});
 
 export const AttachmentForm = ({
   initialData,
   courseId,
 }: AttachmentFormProps) => {
-  const [isEditing, setIsEditing] = useState(false)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const toggleEdit = () => setIsEditing((current) => !current)
+  const toggleEdit = () => setIsEditing((current) => !current);
 
-  const router = useRouter()
+  const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/courses/${courseId}/attachments`, values)
-      toast.success('Course updated')
-      toggleEdit()
-      router.refresh()
+      await axios.post(`/api/courses/${courseId}/attachments`, values);
+      toast.success("Course updated");
+      toggleEdit();
+      router.refresh();
     } catch {
-      toast.error('Something went wrong')
+      toast.error("Something went wrong");
     }
-  }
+  };
 
   const onDelete = async (id: string) => {
     try {
-      setDeletingId(id)
-      await axios.delete(`/api/courses/${courseId}/attachments/${id}`)
-      toast.success('Attachment deleted')
-      router.refresh()
+      setDeletingId(id);
+      await axios.delete(`/api/courses/${courseId}/attachments/${id}`);
+      toast.success("Attachment deleted");
+      router.refresh();
     } catch {
-      toast.error('Something went wrong')
+      toast.error("Something went wrong");
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
-  }
+  };
 
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
@@ -72,7 +75,7 @@ export const AttachmentForm = ({
       {!isEditing && (
         <>
           {initialData.attachments.length === 0 && (
-            <p className="mt-2 text-sm italic text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 italic">
               No attachments yet
             </p>
           )}
@@ -92,6 +95,7 @@ export const AttachmentForm = ({
                   )}
                   {deletingId !== attachment.id && (
                     <button
+                      // eslint-disable-next-line @typescript-eslint/no-misused-promises
                       onClick={() => onDelete(attachment.id)}
                       className="ml-auto transition hover:opacity-75"
                     >
@@ -110,15 +114,16 @@ export const AttachmentForm = ({
             endpoint="courseAttachment"
             onChange={(url) => {
               if (url) {
-                onSubmit({ url: url })
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                onSubmit({ url: url });
               }
             }}
           />
-          <div className="mt-4 text-xs text-muted-foreground">
+          <div className="text-muted-foreground mt-4 text-xs">
             Add anything your students might need to complete the course.
           </div>
         </div>
       )}
     </div>
-  )
-}
+  );
+};

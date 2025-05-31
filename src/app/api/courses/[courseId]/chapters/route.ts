@@ -1,53 +1,54 @@
-import { auth } from '@clerk/nextjs'
-import { NextResponse } from 'next/server'
-
-import { db } from '@/lib/db'
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/db";
+import { ChapterTable, CourseTable } from "@/db/schema";
+import { and, desc, eq } from "drizzle-orm";
 
 export async function POST(
   req: Request,
-  { params }: { params: { courseId: string } },
+  { params }: { params: Promise<{ courseId: string }> },
 ) {
   try {
-    const { userId } = auth()
-    const { title } = await req.json()
+    const { userId } = await auth();
+    const { courseId } = await params;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { title } = await req.json();
 
     if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const courseOwner = await db.course.findUnique({
-      where: {
-        id: params.courseId,
-        userId: userId,
-      },
-    })
+    const courseOwner = await db.query.CourseTable.findFirst({
+      where: and(eq(CourseTable.id, courseId), eq(CourseTable.userId, userId)),
+    });
 
     if (!courseOwner) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const lastChapter = await db.chapter.findFirst({
-      where: {
-        courseId: params.courseId,
-      },
-      orderBy: {
-        position: 'desc',
-      },
-    })
+    const lastChapterPosition = await db.query.ChapterTable.findFirst({
+      where: eq(ChapterTable.courseId, courseId),
+      orderBy: desc(ChapterTable.position),
+    });
 
-    const newPosition = lastChapter ? lastChapter.position + 1 : 1
+    const newPosition = lastChapterPosition
+      ? lastChapterPosition.position + 1
+      : 1;
 
-    const chapter = await db.chapter.create({
-      data: {
+    console.log();
+
+    const [chapter] = await db
+      .insert(ChapterTable)
+      .values({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         title,
-        courseId: params.courseId,
+        courseId,
         position: newPosition,
-      },
-    })
+      })
+      .returning();
 
-    return NextResponse.json(chapter)
+    return new Response(JSON.stringify(chapter));
   } catch (error) {
-    console.log('[CHAPTERS]', error)
-    return new NextResponse('Internal Error', { status: 500 })
+    console.log("[CHAPTERS]", error);
+    return new Response("Internal Error", { status: 500 });
   }
 }
