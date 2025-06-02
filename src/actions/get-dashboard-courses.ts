@@ -25,10 +25,8 @@ export const getDashboardCourses = async (
   try {
     const purchasedCourses = await db.query.PurchaseTable.findMany({
       where: eq(PurchaseTable.userId, userId),
-      columns: {},
       with: {
         course: {
-          columns: {},
           with: {
             category: true,
             chapters: {

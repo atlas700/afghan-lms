@@ -14,8 +14,9 @@ import { VideoPlayer } from "./_components/video-player";
 const ChapterIdPage = async ({
   params,
 }: {
-  params: { courseId: string; chapterId: string };
+  params: Promise<{ courseId: string; chapterId: string }>;
 }) => {
+  const { courseId, chapterId } = await params;
   const { userId } = await auth();
 
   if (!userId) {
@@ -32,8 +33,8 @@ const ChapterIdPage = async ({
     purchase,
   } = await getChapter({
     userId,
-    chapterId: params.chapterId,
-    courseId: params.courseId,
+    chapterId: chapterId,
+    courseId: courseId,
   });
 
   if (!chapter || !course) {
@@ -57,9 +58,9 @@ const ChapterIdPage = async ({
       <div className="mx-auto flex max-w-4xl flex-col pb-20">
         <div className="p-4">
           <VideoPlayer
-            chapterId={params.chapterId}
+            chapterId={chapterId}
             title={chapter.title}
-            courseId={params.courseId}
+            courseId={courseId}
             nextChapterId={nextChapter?.id}
             playbackId={muxData!.playbackId!}
             isLocked={isLocked}
@@ -71,14 +72,14 @@ const ChapterIdPage = async ({
             <h2 className="mb-2 text-2xl font-semibold">{chapter.title}</h2>
             {purchase ? (
               <CourseProgressButton
-                chapterId={params.chapterId}
-                courseId={params.courseId}
+                chapterId={chapterId}
+                courseId={courseId}
                 nextChapterId={nextChapter?.id}
                 isCompleted={!!userProgress?.isCompleted}
               />
             ) : (
               <CourseEnrollButton
-                courseId={params.courseId}
+                courseId={courseId}
                 price={parseFloat(course.price!)}
               />
             )}
