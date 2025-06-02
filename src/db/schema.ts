@@ -102,8 +102,8 @@ export const ChapterTable = pgTable(
     description: text("description"),
     videoUrl: text("video_url"),
     position: integer("position").notNull(),
-    isPublished: boolean("is_published").default(false),
-    isFree: boolean("is_free").default(false),
+    isPublished: boolean("is_published").notNull().default(false),
+    isFree: boolean("is_free").notNull().default(false),
     courseId: uuid("course_id")
       .notNull()
       .references(() => CourseTable.id, {

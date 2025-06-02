@@ -1,40 +1,38 @@
-import { auth } from '@clerk/nextjs'
-import { NextResponse } from 'next/server'
-
-import { db } from '@/lib/db'
+import { db } from "@/db";
+import { CourseTable } from "@/db/schema";
+import { auth } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { courseId: string } },
+  { params }: { params: Promise<{ courseId: string }> },
 ) {
   try {
-    const { userId } = auth()
+    const { courseId } = await params;
+    const { userId } = await auth();
 
     if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const course = await db.course.findUnique({
-      where: {
-        id: params.courseId,
-        userId,
-      },
-      include: {
+    const course = await db.query.CourseTable.findFirst({
+      where: and(eq(CourseTable.id, courseId), eq(CourseTable.userId, userId)),
+      with: {
         chapters: {
-          include: {
+          with: {
             muxData: true,
           },
         },
       },
-    })
+    });
 
     if (!course) {
-      return new NextResponse('Not found', { status: 404 })
+      return new Response("Not found", { status: 404 });
     }
 
     const hasPublishedChapter = course.chapters.some(
       (chapter) => chapter.isPublished,
-    )
+    );
 
     if (
       !course.title ||
@@ -43,22 +41,19 @@ export async function PATCH(
       !course.categoryId ||
       !hasPublishedChapter
     ) {
-      return new NextResponse('Missing required fields', { status: 401 })
+      return new Response("Missing required fields", { status: 401 });
     }
 
-    const publishedCourse = await db.course.update({
-      where: {
-        id: params.courseId,
-        userId,
-      },
-      data: {
+    const publishedCourse = await db
+      .update(CourseTable)
+      .set({
         isPublished: true,
-      },
-    })
+      })
+      .where(and(eq(CourseTable.id, courseId), eq(CourseTable.userId, userId)));
 
-    return NextResponse.json(publishedCourse)
+    return new Response(JSON.stringify(publishedCourse));
   } catch (error) {
-    console.log('[COURSE_ID_PUBLISH]', error)
-    return new NextResponse('Internal Error', { status: 500 })
+    console.log("[COURSE_ID_PUBLISH]", error);
+    return new Response("Internal Error", { status: 500 });
   }
 }

@@ -78,7 +78,7 @@ const ChapterIdPage = async ({
                 disabled={!isComplete}
                 courseId={courseId}
                 chapterId={chapterId}
-                isPublished={chapter.isPublished!}
+                isPublished={chapter.isPublished}
               />
             </div>
           </div>

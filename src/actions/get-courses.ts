@@ -14,11 +14,11 @@ type CourseWithProgressWithCategory = typeof CourseTable.$inferSelect & {
   progress: number | null;
 };
 
-type GetCourses = {
+interface GetCourses {
   userId: string;
   title?: string;
   categoryId?: string;
-};
+}
 
 export const getCourses = async ({
   userId,
@@ -29,8 +29,8 @@ export const getCourses = async ({
     const courses = await db.query.CourseTable.findMany({
       where: and(
         eq(CourseTable.isPublished, true),
-        ilike(CourseTable.title, title!),
-        eq(CourseTable.categoryId, categoryId!),
+        title ? ilike(CourseTable.title, title) : undefined,
+        categoryId ? eq(CourseTable.categoryId, categoryId) : undefined,
       ),
       with: {
         category: true,

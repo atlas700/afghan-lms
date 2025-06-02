@@ -28,7 +28,7 @@ interface ChapterAccessFormProps {
 }
 
 const formSchema = z.object({
-  isFree: z.boolean().default(false),
+  isFree: z.boolean(),
 });
 
 export const ChapterAccessForm = ({
@@ -97,6 +97,7 @@ export const ChapterAccessForm = ({
       {isEditing && (
         <Form {...form}>
           <form
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onSubmit={form.handleSubmit(onSubmit)}
             className="mt-4 space-y-4"
           >

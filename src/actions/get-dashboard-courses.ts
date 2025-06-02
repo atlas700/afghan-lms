@@ -14,10 +14,10 @@ type CourseWithProgressWithCategory = typeof CourseTable.$inferSelect & {
   progress: number | null;
 };
 
-type DashboardCourses = {
+interface DashboardCourses {
   completedCourses: CourseWithProgressWithCategory[];
   coursesInProgress: CourseWithProgressWithCategory[];
-};
+}
 
 export const getDashboardCourses = async (
   userId: string,
