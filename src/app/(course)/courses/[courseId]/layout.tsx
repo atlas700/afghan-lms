@@ -1,58 +1,53 @@
-import { auth } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-import { getProgress } from '@/actions/get-progress'
-import { db } from '@/lib/db'
+import { getProgress } from "@/actions/get-progress";
+import { db } from "@/db";
 
-import { validateAdmin } from '@/lib/admin'
-import { validateTeacher } from '@/lib/teacher'
-import { CourseNavbar } from './_components/course-navbar'
-import { CourseSidebar } from './_components/course-sidebar'
+import { ChapterTable, CourseTable, UserProgressTable } from "@/db/schema";
+import { validateAdmin } from "@/lib/admin";
+import { validateTeacher } from "@/lib/teacher";
+import { asc, eq } from "drizzle-orm";
+import { CourseNavbar } from "./_components/course-navbar";
+import { CourseSidebar } from "./_components/course-sidebar";
 
 const CourseLayout = async ({
   children,
   params,
 }: {
-  children: React.ReactNode
-  params: { courseId: string }
+  children: React.ReactNode;
+  params: Promise<{ courseId: string }>;
 }) => {
-  const { userId } = auth()
+  const { userId } = await auth();
+  const { courseId } = await params;
 
   if (!userId) {
-    return redirect('/dashboard')
+    return redirect("/dashboard");
   }
 
-  const isTeacher = await validateTeacher(userId as string)
-  const isAdmin = await validateAdmin(userId as string)
+  const isTeacher = await validateTeacher(userId);
+  const isAdmin = await validateAdmin(userId);
 
-  const course = await db.course.findUnique({
-    where: {
-      id: params.courseId,
-    },
-    include: {
+  const course = await db.query.CourseTable.findFirst({
+    where: eq(CourseTable.id, courseId),
+    with: {
       chapters: {
-        where: {
-          isPublished: true,
-        },
-        include: {
+        where: eq(ChapterTable.isPublished, true),
+        with: {
           userProgress: {
-            where: {
-              userId,
-            },
+            where: eq(UserProgressTable.userId, userId),
           },
         },
-        orderBy: {
-          position: 'asc',
-        },
+        orderBy: asc(ChapterTable.position),
       },
     },
-  })
+  });
 
   if (!course) {
-    return redirect('/dashboard')
+    return redirect("/dashboard");
   }
 
-  const progressCount = await getProgress(userId, course.id)
+  const progressCount = await getProgress(userId, course.id);
 
   return (
     <div className="h-full">
@@ -69,7 +64,7 @@ const CourseLayout = async ({
       </div>
       <main className="h-full pt-[80px] md:pl-80">{children}</main>
     </div>
-  )
-}
+  );
+};
 
-export default CourseLayout
+export default CourseLayout;

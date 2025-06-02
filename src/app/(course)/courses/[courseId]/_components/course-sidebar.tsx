@@ -1,39 +1,43 @@
-import { auth } from '@clerk/nextjs'
-import { Chapter, Course, UserProgress } from '@prisma/client'
-import { redirect } from 'next/navigation'
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-import { CourseProgress } from '@/components/course-progress'
-import { db } from '@/lib/db'
+import { CourseProgress } from "@/components/course-progress";
+import { db } from "@/db";
 
-import { CourseSidebarItem } from './course-sidebar-item'
+import { CourseSidebarItem } from "./course-sidebar-item";
+import {
+  PurchaseTable,
+  type ChapterTable,
+  type CourseTable,
+  type UserProgressTable,
+} from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 interface CourseSidebarProps {
-  course: Course & {
-    chapters: (Chapter & {
-      userProgress: UserProgress[] | null
-    })[]
-  }
-  progressCount: number
+  course: typeof CourseTable.$inferSelect & {
+    chapters: (typeof ChapterTable.$inferSelect & {
+      userProgress: (typeof UserProgressTable.$inferSelect)[] | null;
+    })[];
+  };
+  progressCount: number;
 }
 
 export const CourseSidebar = async ({
   course,
   progressCount,
 }: CourseSidebarProps) => {
-  const { userId } = auth()
+  const { userId } = await auth();
 
   if (!userId) {
-    return redirect('/dashboard')
+    return redirect("/dashboard");
   }
 
-  const purchase = await db.purchase.findUnique({
-    where: {
-      userId_courseId: {
-        userId,
-        courseId: course.id,
-      },
-    },
-  })
+  const purchase = await db.query.PurchaseTable.findFirst({
+    where: and(
+      eq(PurchaseTable.userId, userId),
+      eq(PurchaseTable.courseId, course.id),
+    ),
+  });
 
   return (
     <div className="flex h-full flex-col overflow-y-auto border-r shadow-sm">
@@ -46,7 +50,7 @@ export const CourseSidebar = async ({
         )}
       </div>
       <div className="flex w-full flex-col">
-        {course.chapters.map((chapter) => (
+        {course?.chapters?.map((chapter) => (
           <CourseSidebarItem
             key={chapter.id}
             id={chapter.id}
@@ -58,5 +62,5 @@ export const CourseSidebar = async ({
         ))}
       </div>
     </div>
-  )
-}
+  );
+};

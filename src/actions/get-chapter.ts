@@ -1,10 +1,18 @@
-import { db } from '@/lib/db'
-import { Attachment, Chapter } from '@prisma/client'
+import { db } from "@/db";
+import {
+  AttachmentTable,
+  ChapterTable,
+  CourseTable,
+  MuxDataTable,
+  PurchaseTable,
+  UserProgressTable,
+} from "@/db/schema";
+import { and, asc, eq, gt } from "drizzle-orm";
 
 interface GetChapterProps {
-  userId: string
-  courseId: string
-  chapterId: string
+  userId: string;
+  courseId: string;
+  chapterId: string;
 }
 
 export const getChapter = async ({
@@ -13,77 +21,66 @@ export const getChapter = async ({
   chapterId,
 }: GetChapterProps) => {
   try {
-    const purchase = await db.purchase.findUnique({
-      where: {
-        userId_courseId: {
-          userId,
-          courseId,
-        },
-      },
-    })
+    const purchase = await db.query.PurchaseTable.findFirst({
+      where: and(
+        eq(PurchaseTable.userId, userId),
+        eq(PurchaseTable.courseId, courseId),
+      ),
+    });
 
-    const course = await db.course.findUnique({
-      where: {
-        isPublished: true,
-        id: courseId,
-      },
-      select: {
+    const course = await db.query.CourseTable.findFirst({
+      where: and(
+        eq(CourseTable.isPublished, true),
+        eq(CourseTable.id, courseId),
+      ),
+      columns: {
         price: true,
       },
-    })
+    });
 
-    const chapter = await db.chapter.findUnique({
-      where: {
-        id: chapterId,
-        isPublished: true,
-      },
-    })
+    const chapter = await db.query.ChapterTable.findFirst({
+      where: and(
+        eq(ChapterTable.isPublished, true),
+        eq(ChapterTable.id, chapterId),
+      ),
+    });
 
     if (!chapter || !course) {
-      throw new Error('Chapter or course not found')
+      throw new Error("Chapter or course not found");
     }
 
-    let muxData = null
-    let attachments: Attachment[] = []
-    let nextChapter: Chapter | null = null
+    let muxData = null;
+    let attachments: (typeof AttachmentTable.$inferSelect)[] = [];
+    let nextChapter: typeof ChapterTable.$inferSelect | null = null;
 
     if (purchase) {
-      attachments = await db.attachment.findMany({
-        where: {
-          courseId: courseId,
-        },
-      })
+      attachments = await db.query.AttachmentTable.findMany({
+        where: eq(AttachmentTable.courseId, courseId),
+      });
     }
 
     if (chapter.isFree || purchase) {
-      muxData = await db.muxData.findUnique({
-        where: {
-          chapterId: chapterId,
-        },
-      })
+      muxData = await db.query.MuxDataTable.findFirst({
+        where: eq(MuxDataTable.chapterId, chapterId),
+      });
 
-      nextChapter = await db.chapter.findFirst({
-        where: {
-          courseId: courseId,
-          isPublished: true,
-          position: {
-            gt: chapter?.position,
-          },
-        },
-        orderBy: {
-          position: 'asc',
-        },
-      })
+      nextChapter =
+        (await db.query.ChapterTable.findFirst({
+          where: and(
+            eq(ChapterTable.courseId, courseId),
+            eq(ChapterTable.isPublished, true),
+            gt(ChapterTable?.position, chapter.position),
+          ),
+          orderBy: asc(ChapterTable.position),
+        })) ?? null;
     }
 
-    const userProgress = await db.userProgress.findUnique({
-      where: {
-        userId_chapterId: {
-          userId,
-          chapterId,
-        },
-      },
-    })
+    const userProgress = await db.query.UserProgressTable.findFirst({
+      where: and(
+        eq(UserProgressTable.userId, userId),
+        eq(UserProgressTable.chapterId, chapterId),
+      ),
+    });
 
     return {
       chapter,
@@ -93,9 +90,9 @@ export const getChapter = async ({
       nextChapter,
       userProgress,
       purchase,
-    }
+    };
   } catch (error) {
-    console.log('[GET_CHAPTER]', error)
+    console.log("[GET_CHAPTER]", error);
     return {
       chapter: null,
       course: null,
@@ -104,6 +101,6 @@ export const getChapter = async ({
       nextChapter: null,
       userProgress: null,
       purchase: null,
-    }
+    };
   }
-}
+};

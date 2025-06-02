@@ -1,25 +1,25 @@
-import { auth } from '@clerk/nextjs'
-import { File } from 'lucide-react'
-import { redirect } from 'next/navigation'
+import { auth } from "@clerk/nextjs/server";
+import { File } from "lucide-react";
+import { redirect } from "next/navigation";
 
-import { getChapter } from '@/actions/get-chapter'
-import { Banner } from '@/components/banner'
-import { Preview } from '@/components/preview'
-import { Separator } from '@/components/ui/separator'
+import { getChapter } from "@/actions/get-chapter";
+import { Banner } from "@/components/banner";
+import { Preview } from "@/components/preview";
+import { Separator } from "@/components/ui/separator";
 
-import { CourseEnrollButton } from './_components/course-enroll-button'
-import { CourseProgressButton } from './_components/course-progress-button'
-import { VideoPlayer } from './_components/video-player'
+import { CourseEnrollButton } from "./_components/course-enroll-button";
+import { CourseProgressButton } from "./_components/course-progress-button";
+import { VideoPlayer } from "./_components/video-player";
 
 const ChapterIdPage = async ({
   params,
 }: {
-  params: { courseId: string; chapterId: string }
+  params: { courseId: string; chapterId: string };
 }) => {
-  const { userId } = auth()
+  const { userId } = await auth();
 
   if (!userId) {
-    return redirect('/dashboard')
+    return redirect("/dashboard");
   }
 
   const {
@@ -34,14 +34,14 @@ const ChapterIdPage = async ({
     userId,
     chapterId: params.chapterId,
     courseId: params.courseId,
-  })
+  });
 
   if (!chapter || !course) {
-    return redirect('/dashboard')
+    return redirect("/dashboard");
   }
 
-  const isLocked = !chapter.isFree && !purchase
-  const completeOnEnd = !!purchase && !userProgress?.isCompleted
+  const isLocked = !chapter.isFree && !purchase;
+  const completeOnEnd = !!purchase && !userProgress?.isCompleted;
 
   return (
     <div>
@@ -61,7 +61,7 @@ const ChapterIdPage = async ({
             title={chapter.title}
             courseId={params.courseId}
             nextChapterId={nextChapter?.id}
-            playbackId={muxData?.playbackId!}
+            playbackId={muxData!.playbackId!}
             isLocked={isLocked}
             completeOnEnd={completeOnEnd}
           />
@@ -79,7 +79,7 @@ const ChapterIdPage = async ({
             ) : (
               <CourseEnrollButton
                 courseId={params.courseId}
-                price={course.price!}
+                price={parseFloat(course.price!)}
               />
             )}
           </div>
@@ -108,7 +108,7 @@ const ChapterIdPage = async ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChapterIdPage
+export default ChapterIdPage;
