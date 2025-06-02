@@ -1,15 +1,14 @@
-import { Category, Course } from '@prisma/client'
+import { CourseCard } from "@/components/course-card";
+import type { CategoryTable, CourseTable } from "@/db/schema";
 
-import { CourseCard } from '@/components/course-card'
-
-type CourseWithProgressWithCategory = Course & {
-  category: Category | null
-  chapters: { id: string }[]
-  progress: number | null
-}
+type CourseWithProgressWithCategory = typeof CourseTable.$inferSelect & {
+  category: typeof CategoryTable.$inferSelect | null;
+  chapters: { id: string }[];
+  progress: number | null;
+};
 
 interface CoursesListProps {
-  items: CourseWithProgressWithCategory[]
+  items: CourseWithProgressWithCategory[];
 }
 
 export const CoursesList = ({ items }: CoursesListProps) => {
@@ -23,17 +22,17 @@ export const CoursesList = ({ items }: CoursesListProps) => {
             title={item.title}
             imageUrl={item.imageUrl!}
             chaptersLength={item.chapters.length}
-            price={item.price!}
+            price={parseFloat(item.price!)}
             progress={item.progress}
-            category={item?.category?.name!}
+            category={item?.category?.name ?? "Uncategorized"}
           />
         ))}
       </div>
       {items.length === 0 && (
-        <div className="mt-10 text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground mt-10 text-center text-sm">
           No courses found
         </div>
       )}
     </div>
-  )
-}
+  );
+};
