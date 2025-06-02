@@ -13,6 +13,10 @@ export const env = createEnv({
     UPLOADTHING_TOKEN: z.string().min(1, "Uploadthing Token is Required"),
     MUX_TOKEN_ID: z.string().min(1, "Mux Token ID is Required"),
     MUX_TOKEN_SECRET: z.string().min(1, "Mux Secret is Required"),
+    STRIPE_API_KEY: z.string().min(1, "Stripe API Key is Required"),
+    STRIPE_WEBHOOK_SECRET: z
+      .string()
+      .min(1, "Stripe Webhook Secret is Required"),
   },
 
   /**
@@ -62,6 +66,8 @@ export const env = createEnv({
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
     MUX_TOKEN_ID: process.env.MUX_TOKEN_ID,
     MUX_TOKEN_SECRET: process.env.MUX_TOKEN_SECRET,
+    STRIPE_API_KEY: process.env.STRIPE_API_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
