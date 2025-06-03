@@ -1,12 +1,12 @@
-import { LucideIcon } from 'lucide-react'
+import type { LucideIcon } from "lucide-react";
 
-import { IconBadge } from '@/components/icon-badge'
+import { IconBadge } from "@/components/icon-badge";
 
 interface InfoCardProps {
-  numberOfItems: number
-  variant?: 'default' | 'success'
-  label: string
-  icon: LucideIcon
+  numberOfItems: number;
+  variant?: "default" | "success";
+  label: string;
+  icon: LucideIcon;
 }
 
 export const InfoCard = ({
@@ -21,9 +21,9 @@ export const InfoCard = ({
       <div>
         <p className="font-medium">{label}</p>
         <p className="text-sm text-gray-500">
-          {numberOfItems} {numberOfItems === 1 ? 'Course' : 'Courses'}
+          {numberOfItems} {numberOfItems === 1 ? "Course" : "Courses"}
         </p>
       </div>
     </div>
-  )
-}
+  );
+};
