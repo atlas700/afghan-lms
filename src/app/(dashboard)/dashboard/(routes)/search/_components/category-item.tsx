@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import qs from 'query-string'
-import { IconType } from 'react-icons'
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import qs from "query-string";
+import type { IconType } from "react-icons";
 
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils";
 
 interface CategoryItemProps {
-  label: string
-  value?: string
-  icon?: IconType
+  label: string;
+  value?: string;
+  icon?: IconType;
 }
 
 export const CategoryItem = ({
@@ -17,14 +17,14 @@ export const CategoryItem = ({
   value,
   icon: Icon,
 }: CategoryItemProps) => {
-  const pathname = usePathname()
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const currentCategoryId = searchParams.get('categoryId')
-  const currentTitle = searchParams.get('title')
+  const currentCategoryId = searchParams.get("categoryId");
+  const currentTitle = searchParams.get("title");
 
-  const isSelected = currentCategoryId === value
+  const isSelected = currentCategoryId === value;
 
   const onClick = () => {
     const url = qs.stringifyUrl(
@@ -36,22 +36,22 @@ export const CategoryItem = ({
         },
       },
       { skipNull: true, skipEmptyString: true },
-    )
+    );
 
-    router.push(url)
-  }
+    router.push(url);
+  };
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex items-center gap-x-1 rounded-full border border-slate-200 px-3 py-2 text-sm transition hover:border-sky-700',
-        isSelected && 'border-sky-700 bg-sky-200/20 text-sky-800',
+        "flex items-center gap-x-1 rounded-full border border-slate-200 px-3 py-2 text-sm transition hover:border-sky-700",
+        isSelected && "border-sky-700 bg-sky-200/20 text-sky-800",
       )}
       type="button"
     >
       {Icon && <Icon size={20} />}
       <div className="truncate">{label}</div>
     </button>
-  )
-}
+  );
+};

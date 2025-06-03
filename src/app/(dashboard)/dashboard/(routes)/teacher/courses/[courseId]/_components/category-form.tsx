@@ -1,10 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Course } from "@prisma/client";
 import axios from "axios";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -23,9 +20,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
+import type { CourseTable } from "@/db/schema";
 
 interface CategoryFormProps {
-  initialData: Course;
+  initialData: typeof CourseTable.$inferSelect;
   courseId: string;
   options: { label: string; value: string }[];
 }
