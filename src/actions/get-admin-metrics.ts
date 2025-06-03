@@ -1,21 +1,27 @@
 import { db } from "@/db";
+import { UserTable } from "@/db/schema";
+import { desc, gte } from "drizzle-orm";
 
 export async function getAdminMetrics() {
   // total users
-  const userCount = await db.user.count();
-  // new users this week
-  const newUsersThisWeek = await db.user.count({
-    where: {
-      createdAt: {
-        gte: new Date(new Date().setDate(new Date().getDate() - 7)),
-      },
-    },
+
+  const userCount = await db.query.UserTable.findMany();
+  const newUsersThisWeek = await db.query.UserTable.findMany({
+    where: gte(
+      UserTable.createdAt,
+      new Date(new Date().setDate(new Date().getDate() - 7)),
+    ),
   });
-  const activeUsers = await db.user.count();
-  const users = await db.user.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+
+  const activeUsers = await db.query.UserTable.findMany();
+  const users = await db.query.UserTable.findMany({
+    orderBy: desc(UserTable.createdAt),
   });
-  return { userCount, newUsersThisWeek, activeUsers, users };
+
+  return {
+    userCount: userCount.length,
+    newUsersThisWeek: newUsersThisWeek.length,
+    activeUsers: activeUsers.length,
+    users,
+  };
 }
