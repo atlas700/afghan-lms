@@ -13,7 +13,7 @@ export default async function AdminPage() {
     <>
       <Navbar />
       <MaxWidthWrapper className="flex flex-col items-center justify-center pt-[80px] pb-16 text-center">
-        <div>
+        <div className="w-full">
           <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-14">
             <MetricCard label="Total Users" value={userCount} />
             <MetricCard label="New Users This Week" value={newUsersThisWeek} />

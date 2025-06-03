@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table'
-import * as React from 'react'
+} from "@tanstack/react-table";
+import * as React from "react";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -22,14 +22,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { User } from '@prisma/client'
-import UserReportDownloadButton from './user-report-download-button'
+} from "@/components/ui/table";
+import UserReportDownloadButton from "./user-report-download-button";
+import type { UserTable } from "@/db/schema";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  users: User[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  users: (typeof UserTable.$inferSelect)[];
 }
 
 export function DataTable<TData, TValue>({
@@ -37,10 +37,10 @@ export function DataTable<TData, TValue>({
   data,
   users,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
-  )
+  );
 
   const table = useReactTable({
     data,
@@ -55,7 +55,7 @@ export function DataTable<TData, TValue>({
       sorting,
       columnFilters,
     },
-  })
+  });
 
   return (
     <div className="container">
@@ -63,10 +63,10 @@ export function DataTable<TData, TValue>({
         <Input
           placeholder="Find users..."
           value={
-            (table.getColumn('firstname')?.getFilterValue() as string) ?? ''
+            (table.getColumn("firstname")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn('firstname')?.setFilterValue(event.target.value)
+            table.getColumn("firstname")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -87,7 +87,7 @@ export function DataTable<TData, TValue>({
                             header.getContext(),
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -97,7 +97,7 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
+                  data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -141,5 +141,5 @@ export function DataTable<TData, TValue>({
         </Button>
       </div>
     </div>
-  )
+  );
 }

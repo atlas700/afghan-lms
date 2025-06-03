@@ -1,13 +1,13 @@
-'use client'
+/* eslint-disable @typescript-eslint/no-misused-promises */
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { User } from '@prisma/client'
-import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { toast } from 'react-hot-toast'
-import { z } from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { z } from "zod";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,19 +15,20 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form'
-import { Switch } from '@/components/ui/switch'
-import axios from 'axios'
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import axios from "axios";
+import type { UserTable } from "@/db/schema";
 
 interface RoleManagerFormProps {
-  initialData: User | null
-  clerkId: string
+  initialData: typeof UserTable.$inferSelect | null;
+  clerkId: string;
 }
 
 const formSchema = z.object({
   isTeacher: z.boolean().optional(),
   isAdmin: z.boolean().optional(),
-})
+});
 
 export default function RoleManagerForm({
   initialData,
@@ -36,60 +37,60 @@ export default function RoleManagerForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      isTeacher: initialData?.isTeacher!,
-      isAdmin: initialData?.isAdmin!,
+      isTeacher: initialData!.isTeacher!,
+      isAdmin: initialData!.isAdmin!,
     },
-  })
+  });
 
-  const { isSubmitting, isValid } = form.formState
-  const router = useRouter()
+  const { isSubmitting, isValid } = form.formState;
+  const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/admin/${clerkId}`, values)
-      console.log(values)
+      await axios.patch(`/api/admin/${clerkId}`, values);
+      console.log(values);
       if (values.isTeacher !== initialData?.isTeacher) {
         if (values.isTeacher === true) {
-          toast('You marked this user as a teacher!', {
-            icon: '🚀',
-          })
+          toast("You marked this user as a teacher!", {
+            icon: "🚀",
+          });
         } else {
           toast.success(
-            'You have revoked the privileges of this user as a teacher.',
+            "You have revoked the privileges of this user as a teacher.",
             {
-              icon: '⚠️',
+              icon: "⚠️",
             },
-          )
+          );
         }
       } else {
-        toast('Nothing has been changed interms of the teacher priveleges', {
-          icon: 'ℹ️',
-        })
+        toast("Nothing has been changed interms of the teacher priveleges", {
+          icon: "ℹ️",
+        });
       }
 
       if (values.isAdmin !== initialData?.isAdmin) {
         if (values.isAdmin === true) {
-          toast('You marked this user as an admin!', {
-            icon: '🔐',
-          })
+          toast("You marked this user as an admin!", {
+            icon: "🔐",
+          });
         } else {
           toast.success(
-            'You have revoked the privileges of this user as an admin.',
+            "You have revoked the privileges of this user as an admin.",
             {
-              icon: '⚠️',
+              icon: "⚠️",
             },
-          )
+          );
         }
       } else {
-        toast('Nothing has been changed interms of the admin priveleges.', {
-          icon: 'ℹ️',
-        })
+        toast("Nothing has been changed interms of the admin priveleges.", {
+          icon: "ℹ️",
+        });
       }
-      router.refresh()
+      router.refresh();
     } catch {
-      toast.error('Uh oh! Something went wrong.')
+      toast.error("Uh oh! Something went wrong.");
     }
-  }
+  };
   return (
     <>
       <Form {...form}>
@@ -144,5 +145,5 @@ export default function RoleManagerForm({
         </form>
       </Form>
     </>
-  )
+  );
 }
