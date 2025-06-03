@@ -1,61 +1,57 @@
-import { auth } from '@clerk/nextjs'
-import { NextResponse } from 'next/server'
-
-import { db } from '@/lib/db'
+import { db } from "@/db";
+import { ChapterTable, CourseTable } from "@/db/schema";
+import { auth } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { courseId: string; chapterId: string } },
+  { params }: { params: Promise<{ courseId: string; chapterId: string }> },
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth();
+    const { courseId, chapterId } = await params;
 
     if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const ownCourse = await db.course.findUnique({
-      where: {
-        id: params.courseId,
-        userId,
-      },
-    })
+    const ownCourse = await db.query.CourseTable.findFirst({
+      where: and(eq(CourseTable.id, courseId), eq(CourseTable.userId, userId)),
+    });
 
     if (!ownCourse) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const unpublishedChapter = await db.chapter.update({
-      where: {
-        id: params.chapterId,
-        courseId: params.courseId,
-      },
-      data: {
+    const unpublishedChapter = await db
+      .update(ChapterTable)
+      .set({
         isPublished: false,
-      },
-    })
+      })
+      .where(
+        and(
+          eq(ChapterTable.id, chapterId),
+          eq(ChapterTable.courseId, courseId),
+        ),
+      );
 
-    const publishedChaptersInCourse = await db.chapter.findMany({
-      where: {
-        courseId: params.courseId,
-        isPublished: true,
-      },
-    })
+    const publishedChaptersInCourse = await db.query.ChapterTable.findMany({
+      where: and(
+        eq(ChapterTable.courseId, courseId),
+        eq(ChapterTable.isPublished, true),
+      ),
+    });
 
     if (!publishedChaptersInCourse.length) {
-      await db.course.update({
-        where: {
-          id: params.courseId,
-        },
-        data: {
-          isPublished: false,
-        },
-      })
+      await db
+        .update(CourseTable)
+        .set({ isPublished: false })
+        .where(eq(CourseTable.id, courseId));
     }
 
-    return NextResponse.json(unpublishedChapter)
+    return new Response(JSON.stringify(unpublishedChapter));
   } catch (error) {
-    console.log('[CHAPTER_UNPUBLISH]', error)
-    return new NextResponse('Internal Error', { status: 500 })
+    console.log("[CHAPTER_UNPUBLISH]", error);
+    return new Response("Internal Error", { status: 500 });
   }
 }

@@ -1,36 +1,39 @@
-'use client'
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+"use client";
 
-import axios from 'axios'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
+import axios from "axios";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
-import { Button } from '@/components/ui/button'
-import { formatPrice } from '@/lib/format'
+import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/lib/format";
 
 interface CourseEnrollButtonProps {
-  price: number
-  courseId: string
+  price: number;
+  courseId: string;
 }
 
 export const CourseEnrollButton = ({
   price,
   courseId,
 }: CourseEnrollButtonProps) => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const onClick = async () => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
 
-      const response = await axios.post(`/api/courses/${courseId}/checkout`)
+      const response = await axios.post(`/api/courses/${courseId}/checkout`);
 
-      window.location.assign(response.data.url)
+      window.location.assign(response.data.url);
     } catch {
-      toast.error('Something went wrong')
+      toast.error("Something went wrong");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Button
@@ -41,5 +44,5 @@ export const CourseEnrollButton = ({
     >
       Enroll for {formatPrice(price)}
     </Button>
-  )
-}
+  );
+};

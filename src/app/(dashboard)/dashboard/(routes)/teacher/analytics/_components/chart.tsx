@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-base-to-string */
 "use client";
 
 import React, { useMemo } from "react";
@@ -27,7 +29,7 @@ export function Chart({ data }: ChartProps) {
       range: [margin.left, width - margin.right],
       padding: 0.2,
     });
-  }, [data]);
+  }, [data, margin.left, margin.right]);
 
   const yScale = useMemo(() => {
     const maxValue = Math.max(...data.map((d) => d.total), 0);
@@ -36,7 +38,7 @@ export function Chart({ data }: ChartProps) {
       range: [height - margin.bottom, margin.top],
       nice: true,
     });
-  }, [data]);
+  }, [data, margin.bottom, margin.top]);
 
   return (
     <Card>

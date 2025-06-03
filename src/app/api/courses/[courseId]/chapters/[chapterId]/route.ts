@@ -114,7 +114,6 @@ export async function PATCH(
         ),
       );
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (values.videoUrl) {
       const existingMuxData = await db.query.MuxDataTable.findFirst({
         where: eq(MuxDataTable.chapterId, chapterId),

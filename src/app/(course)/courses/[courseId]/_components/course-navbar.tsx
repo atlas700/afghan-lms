@@ -1,18 +1,17 @@
-import { Chapter, Course, UserProgress } from '@prisma/client'
+import { NavbarRoutes } from "@/components/navbar-routes";
 
-import { NavbarRoutes } from '@/components/navbar-routes'
-
-import { CourseMobileSidebar } from './course-mobile-sidebar'
+import { CourseMobileSidebar } from "./course-mobile-sidebar";
+import type { ChapterTable, CourseTable, UserProgressTable } from "@/db/schema";
 
 interface CourseNavbarProps {
-  course: Course & {
-    chapters: (Chapter & {
-      userProgress: UserProgress[] | null
-    })[]
-  }
-  progressCount: number
-  isTeacher?: boolean
-  isAdmin?: boolean
+  course: typeof CourseTable.$inferSelect & {
+    chapters: (typeof ChapterTable.$inferSelect & {
+      userProgress: (typeof UserProgressTable.$inferSelect)[] | null;
+    })[];
+  };
+  progressCount: number;
+  isTeacher?: boolean;
+  isAdmin?: boolean;
 }
 
 export const CourseNavbar = ({
@@ -26,5 +25,5 @@ export const CourseNavbar = ({
       <CourseMobileSidebar course={course} progressCount={progressCount} />
       <NavbarRoutes isTeacher={isTeacher} isAdmin={isAdmin} />
     </div>
-  )
-}
+  );
+};

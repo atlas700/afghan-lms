@@ -1,67 +1,68 @@
-'use client'
+/* eslint-disable @typescript-eslint/no-misused-promises */
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
-import { Pencil } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
-import * as z from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 interface ChapterTitleFormProps {
   initialData: {
-    title: string
-  }
-  courseId: string
-  chapterId: string
+    title: string;
+  };
+  courseId: string;
+  chapterId: string;
 }
 
 const formSchema = z.object({
   title: z.string().min(1),
-})
+});
 
 export const ChapterTitleForm = ({
   initialData,
   courseId,
   chapterId,
 }: ChapterTitleFormProps) => {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
 
-  const toggleEdit = () => setIsEditing((current) => !current)
+  const toggleEdit = () => setIsEditing((current) => !current);
 
-  const router = useRouter()
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData,
-  })
+  });
 
-  const { isSubmitting, isValid } = form.formState
+  const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(
         `/api/courses/${courseId}/chapters/${chapterId}`,
         values,
-      )
-      toast.success('Chapter updated')
-      toggleEdit()
-      router.refresh()
+      );
+      toast.success("Chapter updated");
+      toggleEdit();
+      router.refresh();
     } catch {
-      toast.error('Something went wrong')
+      toast.error("Something went wrong");
     }
-  }
+  };
 
   return (
     <div className="mt-6 rounded-md border bg-slate-100 p-4">
@@ -110,5 +111,5 @@ export const ChapterTitleForm = ({
         </Form>
       )}
     </div>
-  )
-}
+  );
+};

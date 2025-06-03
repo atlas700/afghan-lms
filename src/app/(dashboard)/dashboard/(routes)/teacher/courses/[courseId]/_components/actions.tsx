@@ -62,7 +62,6 @@ export const Actions = ({ disabled, courseId, isPublished }: ActionsProps) => {
   return (
     <div className="flex items-center gap-x-2">
       <Button
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onClick={onClick}
         disabled={disabled || isLoading}
         variant="outline"

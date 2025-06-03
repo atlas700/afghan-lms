@@ -43,7 +43,6 @@ export async function DELETE(
 
     for (const chapter of course.chapters) {
       if (chapter.muxData?.assetId) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         await video.assets.delete(chapter.muxData.assetId);
       }
     }

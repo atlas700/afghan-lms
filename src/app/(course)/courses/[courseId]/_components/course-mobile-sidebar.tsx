@@ -1,17 +1,17 @@
-import { Chapter, Course, UserProgress } from '@prisma/client'
-import { Menu } from 'lucide-react'
+import { Menu } from "lucide-react";
 
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-import { CourseSidebar } from './course-sidebar'
+import { CourseSidebar } from "./course-sidebar";
+import type { ChapterTable, CourseTable, UserProgressTable } from "@/db/schema";
 
 interface CourseMobileSidebarProps {
-  course: Course & {
-    chapters: (Chapter & {
-      userProgress: UserProgress[] | null
-    })[]
-  }
-  progressCount: number
+  course: typeof CourseTable.$inferSelect & {
+    chapters: (typeof ChapterTable.$inferSelect & {
+      userProgress: (typeof UserProgressTable.$inferSelect)[] | null;
+    })[];
+  };
+  progressCount: number;
 }
 
 export const CourseMobileSidebar = ({
@@ -27,5 +27,5 @@ export const CourseMobileSidebar = ({
         <CourseSidebar course={course} progressCount={progressCount} />
       </SheetContent>
     </Sheet>
-  )
-}
+  );
+};

@@ -1,40 +1,41 @@
-import { auth } from '@clerk/nextjs'
-import { NextResponse } from 'next/server'
-
-import { db } from '@/lib/db'
+import { db } from "@/db";
+import { AttachmentTable, CourseTable } from "@/db/schema";
+import { auth } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { courseId: string; attachmentId: string } },
+  { params }: { params: Promise<{ courseId: string; attachmentId: string }> },
 ) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth();
+
+    const { courseId, attachmentId } = await params;
 
     if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const courseOwner = await db.course.findUnique({
-      where: {
-        id: params.courseId,
-        userId: userId,
-      },
-    })
+    const courseOwner = await db.query.CourseTable.findFirst({
+      where: and(eq(CourseTable.id, courseId), eq(CourseTable.userId, userId)),
+    });
 
     if (!courseOwner) {
-      return new NextResponse('Unauthorized', { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const attachment = await db.attachment.delete({
-      where: {
-        courseId: params.courseId,
-        id: params.attachmentId,
-      },
-    })
+    const attachment = await db
+      .delete(AttachmentTable)
+      .where(
+        and(
+          eq(AttachmentTable.id, attachmentId),
+          eq(AttachmentTable.courseId, courseId),
+        ),
+      );
 
-    return NextResponse.json(attachment)
+    return new Response(JSON.stringify(attachment));
   } catch (error) {
-    console.log('ATTACHMENT_ID', error)
-    return new NextResponse('Internal Error', { status: 500 })
+    console.log("ATTACHMENT_ID", error);
+    return new Response("Internal Error", { status: 500 });
   }
 }
